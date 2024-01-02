@@ -1,9 +1,6 @@
 #ifndef F24LC256_P_H
 #define F24LC256_P_H
 
-#include <QTimer>
-
-#include "i2cutils.h"
 #include "i2ceeprom_p.h"
 
 #define Write24LC256 0

@@ -5,17 +5,14 @@
 #include <linux/i2c-dev.h>
 #include <unistd.h>
 #include <QString>
-#include <QtGlobal>
-
+#include "i2cutils.h"
 #include "i2ceeprom_p.h"
 #include "F24LC256_p.h"
-
 
 cF24LC256Private::cF24LC256Private(QString devNode, short adr)
     : cI2CEEPromPrivate(devNode, adr)
 {
 }
-
 
 int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
 {
@@ -95,11 +92,7 @@ int cF24LC256Private::ReadData(char* data,ushort n,ushort adr)
 
 }
 
-
 int cF24LC256Private::size()
 {
     return 32768;
 }
-
-
-

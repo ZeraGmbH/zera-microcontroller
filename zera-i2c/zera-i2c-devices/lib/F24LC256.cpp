@@ -6,12 +6,10 @@ cF24LC256::cF24LC256(QString devNode, short adr)
 {
 }
 
-
 cF24LC256::~cF24LC256()
 {
     delete d_ptr;
 }
-
 
 int cF24LC256::WriteData(char *data, ushort count, ushort adr)
 {
@@ -32,7 +30,3 @@ int cF24LC256::size()
 {
     return d_ptr->size();
 }
-
-
-
-
