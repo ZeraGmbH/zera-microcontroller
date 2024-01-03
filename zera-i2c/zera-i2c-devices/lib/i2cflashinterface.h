@@ -2,6 +2,7 @@
 #define I2CFLASHINTERFACE_H
 
 #include <QtGlobal>
+#include <memory>
 
 class I2cFlashInterface
 {
@@ -12,5 +13,7 @@ public:
     virtual int Reset() = 0;
     virtual int size() = 0;
 };
+
+typedef std::unique_ptr<I2cFlashInterface> I2cFlashInterfacePtrU;
 
 #endif // I2CFLASHINTERFACE_H
