@@ -15,7 +15,6 @@ public:
     /**
       @b Initializes a new eeprom object
       @param[in] dNode is full path i2c device node /dev/i2c-3/0 for example
-      @param[in] d(ebug)Level decides what to write to syslog
       @param[in] (i2c)adr is the devices adress
       */
     cI2CEEPromPrivate(QString dNode, ushort adr);
