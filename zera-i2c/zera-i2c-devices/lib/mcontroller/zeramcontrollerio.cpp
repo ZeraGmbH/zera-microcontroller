@@ -1,4 +1,3 @@
-#include <syslog.h>
 #include <crcutils.h>
 #include <QString>
 #include <QHash>
@@ -121,7 +120,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
         }
     }
     if (DEBUG2) {
-        syslog(LOG_INFO,"i2c cmd start: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s / len %u",
+        qInfo("i2c cmd start: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s / len %u",
                m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam), dataAndCrcLen);
     }
 
@@ -136,7 +135,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
             if (m_nLastErrorFlags == 0) {
                 dataReturnAndCrcLen = (static_cast<quint16>(inpBuf[2]) << 8) + inpBuf[3];
                 if(DEBUG2) {
-                    syslog(LOG_INFO, "i2c cmd ok: adr 0x%02X / len %u",
+                    qInfo("i2c cmd ok: adr 0x%02X / len %u",
                            m_nI2CAdr, dataReturnAndCrcLen);
                 }
                 // Read cmd data?
@@ -147,9 +146,9 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
                     }
                     else {
                         if(DEBUG1) {
-                            syslog(LOG_ERR,"i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s / len %u",
+                            qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s / len %u",
                                    m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam), dataAndCrcLen);
-                            syslog(LOG_ERR, "i2c cmd returned wrong length: adr 0x%02X / expected len %u / received len %u",
+                            qCritical("i2c cmd returned wrong length: adr 0x%02X / expected len %u / received len %u",
                                    m_nI2CAdr, dataAndCrcLen, dataReturnAndCrcLen);
                         }
                         m_nLastErrorFlags |= MASTER_ERR_FLAG_LENGTH;
@@ -157,18 +156,18 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
                 }
             }
             else if(DEBUG1) {
-                syslog(LOG_ERR,"i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
+                qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
                        m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam));
-                syslog(LOG_ERR, "i2c cmd error: adr 0x%02X / %s",
+                qCritical("i2c cmd error: adr 0x%02X / %s",
                        m_nI2CAdr, qPrintable(getErrorMaskText()));
             }
         }
         else {
             m_nLastErrorFlags |= MASTER_ERR_FLAG_CRC;
             if (DEBUG1) {
-                syslog(LOG_ERR,"i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
+                qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
                        m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam));
-                syslog(LOG_ERR, "i2c cmd checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X",
+                qCritical("i2c cmd checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X",
                        m_nI2CAdr, expectedCrc, receivedCrc);
             }
         }
@@ -176,9 +175,9 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
     else {
         m_nLastErrorFlags |= MASTER_ERR_FLAG_I2C_TRANSFER;
         if (DEBUG1) {
-            syslog(LOG_ERR,"i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
+            qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
                    m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam));
-            syslog(LOG_ERR, "i2c cmd failed: adr 0x%02X / error returned %i",
+            qCritical("i2c cmd failed: adr 0x%02X / error returned %i",
                    m_nI2CAdr, errVal);
         }
     }
@@ -221,7 +220,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
         }
     }
     if (DEBUG2) {
-        syslog(LOG_INFO,"i2c bootcmd start: addr 0x%02X / cmd 0x%02X / par %s / len %u",
+        qInfo("i2c bootcmd start: addr 0x%02X / cmd 0x%02X / par %s / len %u",
                m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam), dataAndCrcLen);
     }
 
@@ -245,7 +244,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
                     ++dataReturnAndCrcLen;
                 }
                 if(DEBUG2) {
-                    syslog(LOG_INFO, "i2c bootcmd ok: adr 0x%02X / len %u",
+                    qInfo("i2c bootcmd ok: adr 0x%02X / len %u",
                            m_nI2CAdr, dataReturnAndCrcLen);
                 }
                 // Read cmd data?
@@ -256,9 +255,9 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
                     }
                     else {
                         if(DEBUG1) {
-                            syslog(LOG_ERR,"i2c bootcmd was: adr 0x%02X / cmd 0x%02X / par %s / len %u",
+                            qCritical("i2c bootcmd was: adr 0x%02X / cmd 0x%02X / par %s / len %u",
                                    m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam), dataAndCrcLen);
-                            syslog(LOG_ERR, "i2c bootcmd returned wrong length: adr 0x%02X / expected len %u / received len %u",
+                            qCritical("i2c bootcmd returned wrong length: adr 0x%02X / expected len %u / received len %u",
                                    m_nI2CAdr, dataAndCrcLen, dataReturnAndCrcLen);
                         }
                         m_nLastErrorFlags |= MASTER_ERR_FLAG_LENGTH;
@@ -266,18 +265,18 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
                 }
             }
             else if(DEBUG1) {
-                syslog(LOG_ERR,"i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
+                qCritical("i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
                        m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam));
-                syslog(LOG_ERR, "i2c bootcmd error: adr 0x%02X / %s",
+                qCritical("i2c bootcmd error: adr 0x%02X / %s",
                        m_nI2CAdr, qPrintable(getErrorMaskText()));
             }
         }
         else {
             m_nLastErrorFlags |= MASTER_ERR_FLAG_CRC;
             if (DEBUG1) {
-                syslog(LOG_ERR,"i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
+                qCritical("i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
                        m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam));
-                syslog(LOG_ERR, "i2c bootcmd checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X",
+                qCritical("i2c bootcmd checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X",
                        m_nI2CAdr, expectedCrc, receivedCrc);
             }
         }
@@ -285,9 +284,9 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
     else  {
         m_nLastErrorFlags |= MASTER_ERR_FLAG_I2C_TRANSFER;
         if (DEBUG1) {
-            syslog(LOG_ERR,"i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
+            qCritical("i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
                    m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam));
-            syslog(LOG_ERR, "i2c bootcmd failed: adr 0x%02X / error returned %i",
+            qCritical("i2c bootcmd failed: adr 0x%02X / error returned %i",
                    m_nI2CAdr, errVal);
         }
     }
@@ -306,12 +305,12 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
     // implementor -> generate warning always
     if(!data) {
         m_nLastErrorFlags |= MASTER_ERR_FLAG_CODER_IS_AN_IDIOT;
-        syslog(LOG_WARNING, "ZeraMControllerIo::readOutput: No data set for return buffer");
+        qWarning("ZeraMControllerIo::readOutput: No data set for return buffer");
         return dataReturnAndCrcLen;
     }
     if(dataAndCrcLen < 2) {
         m_nLastErrorFlags |= MASTER_ERR_FLAG_CODER_IS_AN_IDIOT;
-        syslog(LOG_WARNING, "ZeraMControllerIo::readOutput: Minimum buffer len is 2 (1 data + 1 crc): len %u",
+        qWarning("ZeraMControllerIo::readOutput: Minimum buffer len is 2 (1 data + 1 crc): len %u",
                dataAndCrcLen);
         return dataReturnAndCrcLen;
     }
@@ -327,7 +326,7 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
     comData.nmsgs = 1;
 
     if(DEBUG2) {
-        syslog(LOG_INFO,"i2c read start: adr 0x%02X / len %u",
+        qInfo("i2c read start: adr 0x%02X / len %u",
                 m_nI2CAdr, dataAndCrcLen);
     }
     int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
@@ -345,13 +344,13 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
         if (expectedCrc==receivedCrc) {
             dataReturnAndCrcLen = dataAndCrcLen;
             if(DEBUG2) {
-                syslog(LOG_INFO, "i2c read ok: adr 0x%02X / len %u / data %s",
+                qInfo("i2c read ok: adr 0x%02X / len %u / data %s",
                        m_nI2CAdr, dataReturnAndCrcLen, qPrintable(i2cHexData));
             }
         }
         else {
             if (DEBUG1) {
-                syslog(LOG_ERR, "i2c read checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X / data %s",
+                qCritical("i2c read checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X / data %s",
                        m_nI2CAdr, expectedCrc, receivedCrc, qPrintable(i2cHexData));
             }
             m_nLastErrorFlags |= MASTER_ERR_FLAG_CRC;
@@ -360,7 +359,7 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
     else {
         m_nLastErrorFlags |= MASTER_ERR_FLAG_I2C_TRANSFER;
         if (DEBUG1) {
-            syslog(LOG_ERR, "i2c read failed: adr 0x%02X / error returned %i",
+            qCritical("i2c read failed: adr 0x%02X / error returned %i",
                    m_nI2CAdr, errVal);
         }
     }
@@ -370,7 +369,7 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
 void ZeraMControllerIo::GenCommand(hw_cmd* hc)
 {
     if(!hc->par && hc->plen > 0) {
-        syslog(LOG_WARNING, "ZeraMControllerIo::GenCommand: No parameter data set but plen=%u", hc->plen);
+        qWarning("ZeraMControllerIo::GenCommand: No parameter data set but plen=%u", hc->plen);
         hc->plen = 0;
     }
     quint16 len = 6 + hc->plen;
@@ -474,7 +473,7 @@ ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, c
             if(verify && !bootloaderSupportsRead) {
                 // It's not quite correct but this is the error we would get from µC
                 m_nLastErrorFlags |= BL_ERR_FLAG_CMD_INVALID;
-                syslog(LOG_WARNING, "ZeraMControllerIo::loadOrVerifyMemory: Bootloader does not support read commands -> cannot verify");
+                qWarning("ZeraMControllerIo::loadOrVerifyMemory: Bootloader does not support read commands -> cannot verify");
                 return cmdexecfault; // TODO remove - not necessary: block loop won't start
             }
 
@@ -489,7 +488,7 @@ ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, c
                     ihxFIO.GetMemoryBlock(BootloaderInfo.MemPageSize, memAddress, memByteArray, memOffset) ) {
                 // on retry: spawn warning
                 if(triesLeftover != maxBlockWriteTries) {
-                    syslog(LOG_WARNING, "Bootloader reported memory at address 0x%04X was not written correctly - retry", memAddress);
+                    qWarning("Bootloader reported memory at address 0x%04X was not written correctly - retry", memAddress);
                 }
                 --triesLeftover;
                 // Reset error flags here is OK/necessary because of:
