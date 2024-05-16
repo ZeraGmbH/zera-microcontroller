@@ -30,7 +30,7 @@ QString I2cMuxerPCA9547::getDevIdString()
 
 void I2cMuxerPCA9547::switchMux(uchar muxCode)
 {
-    qInfo("Switch I2c-Muxer PCA9547 on I2c %s/0x%02X to %i",
+    qInfo("Switch I2c-Muxer PCA9547 on I2c %s / 0x%02X to 0x%02X",
           qPrintable(m_deviceNode), m_i2cMuxAdress, muxCode);
     // 1 adr byte, 1 byte data = mux code
     struct i2c_msg i2cMsgs;
