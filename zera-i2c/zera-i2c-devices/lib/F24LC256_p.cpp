@@ -17,8 +17,8 @@ cF24LC256Private::cF24LC256Private(QString devNode, short adr)
 int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
 {
     uchar outpBuf[66]; // 2 adr byte, max 64 byte data
-    struct i2c_msg Msgs = {addr: I2CAdress, flags: I2C_M_RD, len: 5, buf:  outpBuf }; // 1 message
-    struct i2c_rdwr_ioctl_data EEPromData = { msgs: &(Msgs), nmsgs: 1 };
+    struct i2c_msg Msgs = {.addr = I2CAdress, .flags = I2C_M_RD, .len =  5, .buf = outpBuf }; // 1 message
+    struct i2c_rdwr_ioctl_data EEPromData = {.msgs = &(Msgs), .nmsgs = 1 };
     int toWrite = count;
 
     if ( I2CTransfer(DevNode, I2CAdress, &EEPromData) )
@@ -63,10 +63,10 @@ int cF24LC256Private::ReadData(char* data,ushort n,ushort adr)
 {
     uchar outpBuf[2];
     uchar inpBuf[blockReadLen]; // the max. blocklength
-    struct i2c_msg Msgs[2] = { {addr :I2CAdress, flags: 0,len: 2,buf: &(outpBuf[0])}, // 2 messages (tagged format )
-                               {addr :I2CAdress, flags: (I2C_M_RD+I2C_M_NOSTART), len: blockReadLen, buf: &(inpBuf[0])} };
+    struct i2c_msg Msgs[2] = { {.addr = I2CAdress, .flags = 0,.len = 2,.buf = &(outpBuf[0])}, // 2 messages (tagged format )
+                               {.addr = I2CAdress, .flags = (I2C_M_RD+I2C_M_NOSTART), .len = blockReadLen, .buf = &(inpBuf[0])} };
 
-    struct i2c_rdwr_ioctl_data EEPromData = {  msgs: &(Msgs[0]), nmsgs: 2 };
+    struct i2c_rdwr_ioctl_data EEPromData = {.msgs = &(Msgs[0]), .nmsgs = 2 };
 
     ushort toRead = n;
 
