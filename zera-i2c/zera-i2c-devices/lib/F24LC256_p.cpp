@@ -22,13 +22,13 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
     int toWrite = count;
 
     if ( I2CTransfer(DevNode, I2CAdress, &EEPromData) )
-    return 0; // we couldn't write any data
+        return 0; // we couldn't write any data
 
     Msgs.flags = 0; // switch to write direction
     char* mydata = data;
-    while (toWrite)
-    {
-        if (adr > 32767 ) break; // we are ready if adress get greater than 32767
+    while (toWrite) {
+        if (adr > size()-1 )
+            break; // done
         outpBuf[0] = (adr >> 8) & 0xff; outpBuf[1] = adr & 0xff;
         int pl = 64 - (adr & 0x3f); // how many bytes for the actual page
         int l = (toWrite > pl) ? pl : toWrite; // so we decide how many bytes to write now
@@ -36,13 +36,13 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
         mydata+=l;
         Msgs.len = l+2; // set length for i2c driver
         int r;
-        for (int i = 0; i < 100; i++) // max 10ms
-        {
+        for (int i = 0; i < 100; i++) { // ?!?!
             if (( r = I2CTransfer(DevNode, I2CAdress, &EEPromData)) == 0)
                 break;
             usleep(100);
         }
-        if (r) break; // // device node ok , but eeprom is busy or i2c nak because write protection
+        if (r)
+            break; // // device node ok , but eeprom is busy or i2c nak because write protection
         adr += l; // set adress where to go on
         toWrite -= l; // actualize byte to write
     }
