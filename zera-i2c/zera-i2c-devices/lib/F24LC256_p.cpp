@@ -40,6 +40,7 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
             if (( r = I2CTransfer(DevNode, I2CAdress, &EEPromData)) == 0)
                 break;
             usleep(100);
+            qWarning("I2c transaction %u failed!", i);
         }
         if (r)
             break; // // device node ok , but eeprom is busy or i2c nak because write protection
