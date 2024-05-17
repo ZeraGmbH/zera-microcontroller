@@ -1,3 +1,4 @@
+#include "i2cutils.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -5,9 +6,7 @@
 #include <errno.h>
 #include <linux/i2c.h>
 
-#include "i2cutils.h"
-
-int I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata)
+int I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata, bool doNotLogTransferNack)
 {
     int fd = open(deviceNode.toLatin1().constData(), O_RDWR);
     if (fd < 0) {
@@ -29,8 +28,9 @@ int I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata)
     }
     if (ioctl(fd, I2C_RDWR, iodata) < 0) {
         close(fd);
-        qWarning("Error read/write of i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(errno));
+        if(!doNotLogTransferNack)
+            qWarning("Error read/write of i2c device %s / 0x%02X Error message: %s",
+                     qPrintable(deviceNode), i2cadr, strerror(errno));
         return I2C_IO_ERR_TRANSACTION;
     }
     close(fd);

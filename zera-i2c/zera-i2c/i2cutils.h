@@ -13,7 +13,7 @@ enum ZERA_I2C_EXPORT I2cUtilsErrorReturns
     I2C_IO_ERR_TRANSACTION = 2
 };
 
-int ZERA_I2C_EXPORT I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata);
+int ZERA_I2C_EXPORT I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata, bool doNotLogTransferNack = false);
 
 bool ZERA_I2C_EXPORT I2cPing(QString deviceNode, int i2cadr);
 
