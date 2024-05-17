@@ -26,14 +26,14 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
 
     Msgs.flags = 0; // switch to write direction
     char* mydata = data;
-    while (toWrite) {
-        if (adr > size()-1 )
-            break; // done
-        outpBuf[0] = (adr >> 8) & 0xff; outpBuf[1] = adr & 0xff;
+    while (toWrite && adr < size()) {
+        outpBuf[0] = (adr >> 8) & 0xff;
+        outpBuf[1] = adr & 0xff;
+
         int pl = 64 - (adr & 0x3f); // how many bytes for the actual page
         int l = (toWrite > pl) ? pl : toWrite; // so we decide how many bytes to write now
         memcpy((void*)&outpBuf[2],(void*)mydata,l);
-        mydata+=l;
+        mydata += l;
         Msgs.len = l+2; // set length for i2c driver
         int r;
         for (int i = 0; i < 100; i++) {
