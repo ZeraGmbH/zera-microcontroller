@@ -16,6 +16,8 @@ cF24LC256Private::cF24LC256Private(QString devNode, short adr)
 
 int cF24LC256Private::WriteData(char* data, ushort count, ushort memAddress)
 {
+    qInfo("Start EEPROM write on i2c %s/0x%02X / mem address: 0x%04X / size %u",
+          qPrintable(getDeviceNodeName()), getI2cAddress(), memAddress, count);
     uchar outpBuf[66]; // 2 address bytes, max 64 byte data
     struct i2c_msg Msgs = {.addr = m_i2cAdress, .flags = I2C_M_RD, .len =  5, .buf = outpBuf }; // 1 message
     struct i2c_rdwr_ioctl_data EEPromData = {.msgs = &(Msgs), .nmsgs = 1 };
@@ -53,7 +55,11 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort memAddress)
         memAddress += l; // set adress where to go on
         toWrite -= l; // actualize byte to write
     }
-    return(count - toWrite);
+    if(toWrite == 0)
+        qInfo("EEPROM write complete.");
+    else
+        qWarning("EEPROM write incomplete: %i bytes were not written!", toWrite);
+    return (count - toWrite);
 }
 
 int cF24LC256Private::Reset()
