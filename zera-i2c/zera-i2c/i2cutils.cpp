@@ -9,33 +9,32 @@
 
 int I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata)
 {
-    int fd;
-    if ( (fd = open(deviceNode.toLatin1().data(),O_RDWR)) < 0 ) {
-        qWarning("Error opening i2c device: %s / open() error: %i / %s",
-                 deviceNode.toLatin1().data(), errno, strerror(errno));
-        return(1); // error connection
+    int fd = open(deviceNode.toLatin1().constData(), O_RDWR);
+    if (fd < 0) {
+        qWarning("Error opening i2c device %s / 0x%02X Error message: %s",
+                 qPrintable(deviceNode), i2cadr, strerror(errno));
+        return I2C_IO_ERR_SETUP;
     }
-    if (ioctl(fd,I2C_RETRIES,0) < 0) {
+    if (ioctl(fd, I2C_RETRIES, 0) < 0) {
         close(fd);
-        qWarning("Error setting retries of i2c device: %s / ioctl(fd,I2C_RETRIES,0) error: %i / %s",
-                 deviceNode.toLatin1().data(), errno, strerror(errno));
-        return(1); // error connection
+        qWarning("Error setting retries of i2c device %s / 0x%02X Error message: %s",
+                 qPrintable(deviceNode), i2cadr, strerror(errno));
+        return I2C_IO_ERR_SETUP;
     }
-    if (ioctl(fd,I2C_TIMEOUT,500) < 0) {
+    if (ioctl(fd, I2C_TIMEOUT, 500) < 0) {
         close(fd);
-        qWarning("Error setting retries of i2c device: %s / ioctl(fd,I2C_TIMEOUT,500) error: %i / %s",
-                 deviceNode.toLatin1().data(), errno, strerror(errno));
-        return(1); // error connection
+        qWarning("Error setting timeout of i2c device %s / 0x%02X Error message: %s",
+                 qPrintable(deviceNode), i2cadr, strerror(errno));
+        return I2C_IO_ERR_SETUP;
     }
-    if (ioctl(fd,I2C_RDWR,iodata) < 0) {
-        qWarning("Error read/write i2c slave at adress: 0x%02X / ioctl(fd,I2C_RDWR,iodata) error: %i / %s",
-                 i2cadr, errno, strerror(errno));
+    if (ioctl(fd, I2C_RDWR, iodata) < 0) {
         close(fd);
-        return(2); // error device
+        qWarning("Error read/write of i2c device %s / 0x%02X Error message: %s",
+                 qPrintable(deviceNode), i2cadr, strerror(errno));
+        return I2C_IO_ERR_TRANSACTION;
     }
-
     close(fd);
-    return(0); // acknowledge
+    return I2C_IO_OK;
 }
 
 // stolen from https://github.com/mozilla-b2g/i2c-tools

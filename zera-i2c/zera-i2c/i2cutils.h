@@ -6,13 +6,13 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 
-/**
-  @brief
-  Transfers the i2c_rdwr_ioctl_data block to the desired device node
+enum ZERA_I2C_EXPORT I2cUtilsErrorReturns
+{
+    I2C_IO_OK = 0,
+    I2C_IO_ERR_SETUP = 1,
+    I2C_IO_ERR_TRANSACTION = 2
+};
 
-  @param[in] deviceNode is full path i2c device node /dev/i2c-3/0 for example
-  @param[in] i2cadr is sent debug information if desired
-  */
 int ZERA_I2C_EXPORT I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata);
 
 bool ZERA_I2C_EXPORT I2cPing(QString deviceNode, int i2cadr);
