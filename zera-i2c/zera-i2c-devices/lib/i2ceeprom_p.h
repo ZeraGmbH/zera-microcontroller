@@ -15,6 +15,9 @@ public:
     virtual int ReadData(char* data, ushort count, ushort adr) = 0;
     virtual int Reset() = 0;
     virtual int size() = 0;
+
+    QString getDeviceNodeName();
+    ushort getI2cAddress();
 protected:
     QString m_devNodeName;
     ushort m_i2cAdress;
