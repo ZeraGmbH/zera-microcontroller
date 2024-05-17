@@ -36,13 +36,19 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort adr)
         mydata+=l;
         Msgs.len = l+2; // set length for i2c driver
         int r;
-        for (int i = 0; i < 100; i++) { // ?!?!
-            if (( r = I2CTransfer(DevNode, I2CAdress, &EEPromData)) == 0)
+        for (int i = 0; i < 100; i++) {
+            r = I2CTransfer(DevNode, I2CAdress, &EEPromData, true);
+            if(r == I2C_IO_OK)
                 break;
-            usleep(100);
-            qWarning("I2c transaction %u failed!", i);
+            // NACKs are fine and signalling that chip is still busy with previous page
+            // see ACKNOWLEDGE POLLING in
+            // https://ww1.microchip.com/downloads/en/devicedoc/21203r.pdf
+            else if(r == I2C_IO_ERR_TRANSACTION)
+                usleep(100);
+            else
+                break;
         }
-        if (r)
+        if(r)
             break; // // device node ok , but eeprom is busy or i2c nak because write protection
         adr += l; // set adress where to go on
         toWrite -= l; // actualize byte to write
