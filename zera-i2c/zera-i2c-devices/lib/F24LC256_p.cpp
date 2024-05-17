@@ -16,7 +16,7 @@ cF24LC256Private::cF24LC256Private(QString devNode, short adr)
 
 int cF24LC256Private::WriteData(char* data, ushort count, ushort memAddress)
 {
-    qInfo("Start EEPROM write on i2c %s/0x%02X / mem address: 0x%04X / size %u...",
+    qInfo("Start EEPROM write on i2c %s / 0x%02X / mem address: 0x%04X / size %u...",
           qPrintable(getDeviceNodeName()), getI2cAddress(), memAddress, count);
     uchar outpBuf[66]; // 2 address bytes, max 64 byte data
     struct i2c_msg Msgs = {.addr = m_i2cAdress, .flags = I2C_M_RD, .len =  5, .buf = outpBuf }; // 1 message
@@ -64,7 +64,7 @@ int cF24LC256Private::WriteData(char* data, ushort count, ushort memAddress)
 
 int cF24LC256Private::Reset()
 {
-    qInfo("Start EEPROM reset on i2c %s/0x%02X...",
+    qInfo("Start EEPROM reset on i2c %s / 0x%02X...",
           qPrintable(getDeviceNodeName()), getI2cAddress());
     char freshBuff[size()];
     for(int i=0; i<size(); ++i)
@@ -81,7 +81,7 @@ int cF24LC256Private::Reset()
 
 int cF24LC256Private::ReadData(char* data, ushort count, ushort memAddress)
 {
-    qInfo("Start EEPROM read on i2c %s/0x%02X / mem address: 0x%04X / size %u...",
+    qInfo("Start EEPROM read on i2c %s / 0x%02X / mem address: 0x%04X / size %u...",
           qPrintable(getDeviceNodeName()), getI2cAddress(), memAddress, count);
     uchar outpBuf[2];
     uchar inpBuf[blockReadLen]; // the max. blocklength
