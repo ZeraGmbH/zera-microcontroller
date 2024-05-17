@@ -7,7 +7,7 @@
 class cI2CEEPromPrivate
 {
 public:
-    cI2CEEPromPrivate(QString dNode, ushort adr);
+    cI2CEEPromPrivate(QString dNode, ushort i2cAdress);
     cI2CEEPromPrivate(){};
     virtual ~cI2CEEPromPrivate(){};
 
@@ -16,8 +16,8 @@ public:
     virtual int Reset() = 0;
     virtual int size() = 0;
 protected:
-    QString DevNode;
-    ushort I2CAdress;
+    QString m_devNodeName;
+    ushort m_i2cAdress;
 };
 
 #endif // I2CEEPROM_P_H
