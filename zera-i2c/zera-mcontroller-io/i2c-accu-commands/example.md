@@ -40,8 +40,8 @@ zera-mcontroller-io -i/dev/i2c-0 -I0A -c1
 
 ---
 
-* Request PCB/SW accu description ***direct***\
-zera-mcontroller-io -i/dev/i2c-0 -I0A -d0 -c2 -lx -a1
+* Request PCB info ***direct***\
+zera-mcontroller-io -i/dev/i2c-0 -I0A -d0 -c5 -lx -a1
 
 * Request software accu version ***direct***\
 zera-mcontroller-io -i/dev/i2c-0 -I0A -d0 -c3 -lx -a1
@@ -50,8 +50,8 @@ zera-mcontroller-io -i/dev/i2c-0 -I0A -d0 -c3 -lx -a1
 zera-mcontroller-io -i/dev/i2c-0 -I0A -c0 -lx -a1
 
 ---
-* Request accu PCB/SW description ***tunneled***\
-zera-mcontroller-io -i/dev/i2c-0 -I22 -d0 -c54 -p'0x0A 0x00 0x02' -lx -a1
+* Request accu PCB info ***tunneled***\
+zera-mcontroller-io -i/dev/i2c-0 -I22 -d0 -c54 -p'0x0A 0x00 0x05' -lx -a1
 
 * Request accu software version ***tunneled***\
 zera-mcontroller-io -i/dev/i2c-0 -I22 -d0 -c54 -p'0x0A 0x00 0x03' -lx -a1
