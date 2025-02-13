@@ -34,6 +34,25 @@ struct CommandLineData {
     quint8 maxWriteBlockCount = 2;
 };
 
+static QByteArray convertFloatStringToByteArray(const QString& floatString, bool *ok = nullptr) {
+    float value = floatString.toFloat(ok);
+    QByteArray byteArray(4, 0); // Float is 4 bytes in IEEE 754
+    if (!ok)
+        return byteArray;
+
+    uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
+    // Ensure MSB-first (Big-Endian) order
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+    byteArray[0] = bytes[3];
+    byteArray[1] = bytes[2];
+    byteArray[2] = bytes[1];
+    byteArray[3] = bytes[0];
+#else
+    std::memcpy(byteArray.data(), bytes, 4); // Already Big-Endian
+#endif
+    return byteArray;
+}
+
 /**
  * @brief parseParamInputDataParameters: Convert command param input to binary data
  * @param paramValue [IN]: parameter string
@@ -74,6 +93,11 @@ static bool parseParamInputDataParameters(QString paramValue, QString paramAscii
         else if (paramAscii == QStringLiteral("2")){
             binaryData = paramValue.toLatin1();
             binaryData.append(static_cast<char>(0));
+        }
+        else if (paramAscii == QStringLiteral("3")) {
+            binaryData = convertFloatStringToByteArray(paramValue, &ok);
+            if(!ok)
+                qWarning("%s is not a valid float parameter!", qPrintable(paramValue));
         }
         else {
             qWarning("Invalid value for param ASCII-conversion %s!", qPrintable(paramAscii));
@@ -180,7 +204,7 @@ static bool parseCommandLine(QCoreApplication* coreApp, QCommandLineParser *pars
     QCommandLineOption cmdConvertOutputAsciiOption(QStringList() << "a" << "convert-data-ascii", "0: ouput data hex / 1: try to convert received data to ASCII / default 0", "data-convert");
     parser->addOption(cmdConvertOutputAsciiOption);
     // option to convert param from ASCII
-    QCommandLineOption cmdConvertParamAsciiOption(QStringList() << "A" << "convert-param-ascii", "0: hex param e.g '0x01 0xA5' / 1: interpret param data as ASCII / 2: interpret param data as ASCII + append trailing 0-byte / default 0", "param-convert");
+    QCommandLineOption cmdConvertParamAsciiOption(QStringList() << "A" << "convert-param-ascii", "0: hex param e.g '0x01 0xA5' / 1: interpret param data as ASCII / 2: interpret param data as ASCII + append trailing 0-byte / 3: interpret param data as float string e.g. '12.34' / default 0", "param-convert");
     parser->addOption(cmdConvertParamAsciiOption);
     // option for bootloader write flash
     QCommandLineOption cmdFlashWriteOption(QStringList() << "f" << "flash-filename-write", "Write hex file to flash", "hex filename");
