@@ -2,12 +2,11 @@
 #define F24LC256_H
 
 #include "i2cflashinterface.h"
-#include "i2ceeprom_p.h"
 #include "zera-i2c-devices_export.h"
 
 class cF24LC256Private;
 
-class ZERA_I2C_DEVICES_EXPORT cF24LC256 : public cI2CEEPromPrivate, public I2cFlashInterface
+class ZERA_I2C_DEVICES_EXPORT cF24LC256 : public I2cFlashInterface
 {
 public:
     cF24LC256(QString devNode, short adr);

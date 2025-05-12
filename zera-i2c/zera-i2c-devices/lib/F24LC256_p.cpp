@@ -6,11 +6,11 @@
 #include <unistd.h>
 #include <QString>
 #include "i2cutils.h"
-#include "i2ceeprom_p.h"
 #include "F24LC256_p.h"
 
-cF24LC256Private::cF24LC256Private(QString devNode, short adr)
-    : cI2CEEPromPrivate(devNode, adr)
+cF24LC256Private::cF24LC256Private(QString devNode, short adr) :
+    m_devNodeName(devNode),
+    m_i2cAdress(adr)
 {
 }
 
@@ -113,4 +113,14 @@ int cF24LC256Private::ReadData(char* data, ushort count, ushort memAddress)
 int cF24LC256Private::size()
 {
     return 32768;
+}
+
+QString cF24LC256Private::getDeviceNodeName()
+{
+    return m_devNodeName;
+}
+
+ushort cF24LC256Private::getI2cAddress()
+{
+    return m_i2cAdress;
 }
