@@ -14,11 +14,8 @@ public:
     int size() override;
 
 private:
-    QString getDeviceNodeName();
-    ushort getI2cAddress();
-
-    QString m_devNodeName;
-    ushort m_i2cAdress;
+    const QString m_devNodeName;
+    const ushort m_i2cAdress;
 };
 
 #endif // F24LC256_P_H
