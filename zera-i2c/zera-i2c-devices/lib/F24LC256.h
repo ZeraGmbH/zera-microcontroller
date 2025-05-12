@@ -3,20 +3,20 @@
 
 #include "i2cflashinterface.h"
 #include "zera-i2c-devices_export.h"
-
-class cF24LC256Private;
+#include <QString>
 
 class ZERA_I2C_DEVICES_EXPORT cF24LC256 : public I2cFlashInterface
 {
 public:
     cF24LC256(QString devNode, short adr);
-    virtual ~cF24LC256();
-    int WriteData(char* data, ushort count, ushort adr) override;
-    int ReadData(char* data, ushort count, ushort adr) override;
+    int WriteData(char* data, ushort count, ushort memAddress) override;
+    int ReadData(char* data, ushort count, ushort memAddress) override;
     int Reset() override;
     int size() override;
+
 private:
-    cF24LC256Private* d_ptr;
+    const QString m_devNodeName;
+    const ushort m_i2cAdress;
 };
 
 #endif // F24LC256_H
