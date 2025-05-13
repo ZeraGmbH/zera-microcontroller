@@ -1,15 +1,16 @@
-#include "F24LC256.h"
+#include "eepromi2c_24lcxxx.h"
 #include "i2cutils.h"
 #include <linux/i2c.h>
 #include <unistd.h>
 
-cF24LC256::cF24LC256(QString devNode, short adr) :
+EepromI2c_24LCxxx::EepromI2c_24LCxxx(QString devNode, short adr, int byteCapacity) :
+    EepromI2cDeviceInterface(byteCapacity),
     m_devNodeName(devNode),
     m_i2cAdress(adr)
 {
 }
 
-int cF24LC256::WriteData(char* data, ushort count, ushort memAddress)
+int EepromI2c_24LCxxx::WriteData(char* data, ushort count, ushort memAddress)
 {
     qInfo("Start EEPROM write on i2c %s / 0x%02X / mem address: 0x%04X / size %u...",
           qPrintable(m_devNodeName), m_i2cAdress, memAddress, count);
@@ -23,7 +24,7 @@ int cF24LC256::WriteData(char* data, ushort count, ushort memAddress)
 
     Msgs.flags = 0; // switch to write direction
     char* mydata = data;
-    while (toWrite && (memAddress < size())) {
+    while (toWrite && (memAddress < getByteSize())) {
         outpBuf[0] = (memAddress >> 8) & 0xff;
         outpBuf[1] = memAddress & 0xff;
 
@@ -57,24 +58,24 @@ int cF24LC256::WriteData(char* data, ushort count, ushort memAddress)
     return (count - toWrite);
 }
 
-int cF24LC256::Reset()
+int EepromI2c_24LCxxx::Reset()
 {
     qInfo("Start EEPROM reset on i2c %s / 0x%02X...",
           qPrintable(m_devNodeName), m_i2cAdress);
-    char freshBuff[size()];
-    for(int i=0; i<size(); ++i)
+    char freshBuff[getByteSize()];
+    for(int i=0; i<getByteSize(); ++i)
         freshBuff[i] = 0xFF;
-    int bytesReset = WriteData(freshBuff, size(), 0);
-    if(bytesReset == size())
+    int bytesReset = WriteData(freshBuff, getByteSize(), 0);
+    if(bytesReset == getByteSize())
         qInfo("EEPROM reset completed.");
     else
-        qInfo("EEPROM reset failed: %i bytes were not written!", size()-bytesReset);
+        qInfo("EEPROM reset failed: %i bytes were not written!", getByteSize()-bytesReset);
     return bytesReset;
 }
 
 #define blockReadLen 4096
 
-int cF24LC256::ReadData(char* data, ushort count, ushort memAddress)
+int EepromI2c_24LCxxx::ReadData(char* data, ushort count, ushort memAddress)
 {
     qInfo("Start EEPROM read on i2c %s / 0x%02X / mem address: 0x%04X / size %u...",
           qPrintable(m_devNodeName), m_i2cAdress, memAddress, count);
@@ -103,9 +104,4 @@ int cF24LC256::ReadData(char* data, ushort count, ushort memAddress)
     else
         qWarning("EEPROM read incomplete: %i bytes were not written!", toRead);
     return (count - toRead);
-}
-
-int cF24LC256::size()
-{
-    return 32768;
 }
