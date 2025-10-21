@@ -12,7 +12,8 @@ public:
     {
         cmddone,
         cmdfault,
-        cmdexecfault
+        cmdexecfault,
+        cmdpending
     };
     ZeraMControllerIoTemplate(QString devnode, quint8 adr, quint8 debuglevel);
     virtual atmelRM bootloaderStartProgram() = 0;
