@@ -2,7 +2,6 @@
 #define ZERAMCONTROLLERBOOTLOADERSTOPPERFACTORYFORTEST_H
 
 #include "zeramcontrollerbootloaderstopperfactory.h"
-#include "zeramcontrollerio.h"
 #include <QVector>
 
 class ZeraMControllerBootloaderStopperFactoryForTest : public ZeraMControllerBootloaderStopperFactory
@@ -10,6 +9,7 @@ class ZeraMControllerBootloaderStopperFactoryForTest : public ZeraMControllerBoo
 public:
     static void setBootoaderAssumeAppStartedImmediates(QVector<bool> assumeAppStartedImmediates);
     static bool checkEmpty();
+    static void cleanup();
 private:
     static QVector<bool> m_assumeAppStartedImmediates;
 };

@@ -20,3 +20,8 @@ bool ZeraMControllerBootloaderStopperFactoryForTest::checkEmpty()
 {
     return m_assumeAppStartedImmediates.isEmpty();
 }
+
+void ZeraMControllerBootloaderStopperFactoryForTest::cleanup()
+{
+    m_createFunction = defaultCreate;
+}
