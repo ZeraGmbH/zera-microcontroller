@@ -36,7 +36,6 @@ function(SETUP_QTESTS)
             Qt5::Test
             Zera::tasks-base-testlib
             Zera::zera-timers-testlib
-            zera-i2c-devices-testlib
             )
     endforeach()
 endfunction()
