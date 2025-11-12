@@ -12,10 +12,15 @@ I2cMuxerPCA9547::I2cMuxerPCA9547(QString deviceNode, ushort i2cMuxAdress, int ch
     }
 }
 
-void I2cMuxerPCA9547::enableMuxChannel()
+uchar I2cMuxerPCA9547::calcControlByte(int channel0to7)
 {
     constexpr int muxEnableVal = (1<<3);
-    switchMux(m_channel0to7 | muxEnableVal);
+    return channel0to7 | muxEnableVal;
+}
+
+void I2cMuxerPCA9547::enableMuxChannel()
+{
+    switchMux(calcControlByte(m_channel0to7));
 }
 
 void I2cMuxerPCA9547::disableMux()
