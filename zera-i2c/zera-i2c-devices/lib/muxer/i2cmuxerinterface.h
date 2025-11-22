@@ -7,6 +7,7 @@
 class I2cMuxerInterface
 {
 public:
+    static constexpr ushort InvalidMux = -1;
     typedef std::shared_ptr<I2cMuxerInterface> Ptr;
     virtual void enableMuxChannel() = 0;
     virtual void disableMux() = 0;

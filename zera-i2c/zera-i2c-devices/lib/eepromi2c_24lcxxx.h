@@ -8,14 +8,13 @@
 class ZERA_I2C_DEVICES_EXPORT EepromI2c_24LCxxx : public EepromI2cDeviceInterface
 {
 public:
-    EepromI2c_24LCxxx(QString devNode, short adr, int byteCapacity);
+    EepromI2c_24LCxxx(const EepromI2cDeviceInterface::AddressData &addressData, int byteCapacity);
     int WriteData(char* data, ushort count, ushort memAddress) override;
     int ReadData(char* data, ushort count, ushort memAddress) override;
     int Reset() override;
 
 private:
-    const QString m_devNodeName;
-    const ushort m_i2cAdress;
+    const EepromI2cDeviceInterface::AddressData m_addressData;
 };
 
 #endif // EEPROMI2C_24LCXXX_H

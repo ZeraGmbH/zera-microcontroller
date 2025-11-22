@@ -1,12 +1,19 @@
 #ifndef EEPROMI2CDEVICEINTERFACE_H
 #define EEPROMI2CDEVICEINTERFACE_H
 
-#include <QtGlobal>
+#include "i2cmuxerinterface.h"
+#include <QString>
 #include <memory>
 
 class EepromI2cDeviceInterface
 {
 public:
+    struct AddressData {
+        QString devNodeFileName;
+        ushort i2cAddr;
+        ushort i2cMuxAddr = I2cMuxerInterface::InvalidMux;
+        ushort channel0to7 = I2cMuxerInterface::InvalidMux;
+    };
     static constexpr int capacity24LC256 = (1 << 15);
     static constexpr int capacity24LC512 = (1 << 16);
     EepromI2cDeviceInterface(int byteCapacity) :
