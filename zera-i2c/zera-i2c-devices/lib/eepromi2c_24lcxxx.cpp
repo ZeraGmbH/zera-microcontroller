@@ -3,23 +3,22 @@
 #include <linux/i2c.h>
 #include <unistd.h>
 
-EepromI2c_24LCxxx::EepromI2c_24LCxxx(QString devNode, short adr, int byteCapacity) :
+EepromI2c_24LCxxx::EepromI2c_24LCxxx(const I2cAddressParameter &i2cAddressParam, int byteCapacity) :
     EepromI2cDeviceInterface(byteCapacity),
-    m_devNodeName(devNode),
-    m_i2cAdress(adr)
+    m_i2cAddressParam(i2cAddressParam)
 {
 }
 
 int EepromI2c_24LCxxx::WriteData(char* data, ushort count, ushort memAddress)
 {
     qInfo("Start EEPROM write on i2c %s / 0x%02X / mem address: 0x%04X / size %u...",
-          qPrintable(m_devNodeName), m_i2cAdress, memAddress, count);
+          qPrintable(m_i2cAddressParam.devNodeFileName), m_i2cAddressParam.i2cAddr, memAddress, count);
     uchar outpBuf[66]; // 2 address bytes, max 64 byte data
-    struct i2c_msg Msgs = {.addr = m_i2cAdress, .flags = I2C_M_RD, .len =  5, .buf = outpBuf }; // 1 message
+    struct i2c_msg Msgs = {.addr = m_i2cAddressParam.i2cAddr, .flags = I2C_M_RD, .len =  5, .buf = outpBuf }; // 1 message
     struct i2c_rdwr_ioctl_data EEPromData = {.msgs = &(Msgs), .nmsgs = 1 };
     int toWrite = count;
 
-    if ( I2CTransfer(m_devNodeName, m_i2cAdress, &EEPromData) )
+    if ( I2CTransfer(m_i2cAddressParam.devNodeFileName, m_i2cAddressParam.i2cAddr, &EEPromData) )
         return 0; // we couldn't write any data
 
     Msgs.flags = 0; // switch to write direction
@@ -35,7 +34,7 @@ int EepromI2c_24LCxxx::WriteData(char* data, ushort count, ushort memAddress)
         Msgs.len = l+2; // set length for i2c driver
         int r;
         for (int i = 0; i < 100; i++) {
-            r = I2CTransfer(m_devNodeName, m_i2cAdress, &EEPromData, true);
+            r = I2CTransfer(m_i2cAddressParam.devNodeFileName, m_i2cAddressParam.i2cAddr, &EEPromData, true);
             if(r == I2C_IO_OK)
                 break;
             // NACKs are fine and signalling that chip is still busy with previous page
@@ -61,7 +60,7 @@ int EepromI2c_24LCxxx::WriteData(char* data, ushort count, ushort memAddress)
 int EepromI2c_24LCxxx::Reset()
 {
     qInfo("Start EEPROM reset on i2c %s / 0x%02X...",
-          qPrintable(m_devNodeName), m_i2cAdress);
+          qPrintable(m_i2cAddressParam.devNodeFileName), m_i2cAddressParam.i2cAddr);
     char freshBuff[getByteSize()];
     for(int i=0; i<getByteSize(); ++i)
         freshBuff[i] = 0xFF;
@@ -78,11 +77,11 @@ int EepromI2c_24LCxxx::Reset()
 int EepromI2c_24LCxxx::ReadData(char* data, ushort count, ushort memAddress)
 {
     qInfo("Start EEPROM read on i2c %s / 0x%02X / mem address: 0x%04X / size %u...",
-          qPrintable(m_devNodeName), m_i2cAdress, memAddress, count);
+          qPrintable(m_i2cAddressParam.devNodeFileName), m_i2cAddressParam.i2cAddr, memAddress, count);
     uchar outpBuf[2];
     uchar inpBuf[blockReadLen]; // the max. blocklength
-    struct i2c_msg Msgs[2] = { {.addr = m_i2cAdress, .flags = 0,.len = 2,.buf = &(outpBuf[0])}, // 2 messages (tagged format )
-                              {.addr = m_i2cAdress, .flags = (I2C_M_RD+I2C_M_NOSTART), .len = blockReadLen, .buf = &(inpBuf[0])} };
+    struct i2c_msg Msgs[2] = { {.addr = m_i2cAddressParam.i2cAddr, .flags = 0,.len = 2,.buf = &(outpBuf[0])}, // 2 messages (tagged format )
+                              {.addr = m_i2cAddressParam.i2cAddr, .flags = (I2C_M_RD+I2C_M_NOSTART), .len = blockReadLen, .buf = &(inpBuf[0])} };
     struct i2c_rdwr_ioctl_data EEPromData = {.msgs = &(Msgs[0]), .nmsgs = 2 };
 
     ushort toRead = count;
@@ -90,7 +89,7 @@ int EepromI2c_24LCxxx::ReadData(char* data, ushort count, ushort memAddress)
         ushort l = (toRead > blockReadLen) ? blockReadLen : toRead;
         outpBuf[0]=(memAddress >> 8) & 0xff; outpBuf[1]=memAddress & 0xff; // we set the adress for the next transfer
         Msgs[1].len = l; // and it's length
-        if ( I2CTransfer(m_devNodeName, m_i2cAdress, &EEPromData) == I2C_IO_OK ) {
+        if ( I2CTransfer(m_i2cAddressParam.devNodeFileName, m_i2cAddressParam.i2cAddr, &EEPromData) == I2C_IO_OK ) {
             memcpy((void*)data,(void*)&inpBuf[0],l);
             memAddress += l;
             data += l;

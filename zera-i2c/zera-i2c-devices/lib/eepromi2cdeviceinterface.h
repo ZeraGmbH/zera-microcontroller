@@ -1,7 +1,7 @@
 #ifndef EEPROMI2CDEVICEINTERFACE_H
 #define EEPROMI2CDEVICEINTERFACE_H
 
-#include <QtGlobal>
+#include <QString>
 #include <memory>
 
 class EepromI2cDeviceInterface
@@ -9,6 +9,7 @@ class EepromI2cDeviceInterface
 public:
     static constexpr int capacity24LC256 = (1 << 15);
     static constexpr int capacity24LC512 = (1 << 16);
+
     EepromI2cDeviceInterface(int byteCapacity) :
         m_byteCapacity(byteCapacity)
     {}
