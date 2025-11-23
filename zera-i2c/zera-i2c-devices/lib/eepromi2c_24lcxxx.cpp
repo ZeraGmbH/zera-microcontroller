@@ -4,8 +4,8 @@
 #include <unistd.h>
 
 EepromI2c_24LCxxx::EepromI2c_24LCxxx(const I2cAddressParameter &i2cAddressParam, int byteCapacity) :
-    EepromI2cDeviceInterface(byteCapacity),
-    m_i2cAddressParam(i2cAddressParam)
+    m_i2cAddressParam(i2cAddressParam),
+    m_byteCapacity(byteCapacity)
 {
 }
 
@@ -70,6 +70,11 @@ int EepromI2c_24LCxxx::Reset()
     else
         qInfo("EEPROM reset failed: %i bytes were not written!", getByteSize()-bytesReset);
     return bytesReset;
+}
+
+int EepromI2c_24LCxxx::getByteSize() const
+{
+    return m_byteCapacity;
 }
 
 #define blockReadLen 4096

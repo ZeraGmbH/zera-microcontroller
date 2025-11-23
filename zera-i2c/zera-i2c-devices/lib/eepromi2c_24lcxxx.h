@@ -13,9 +13,11 @@ public:
     int WriteData(char* data, ushort count, ushort memAddress) override;
     int ReadData(char* data, ushort count, ushort memAddress) override;
     int Reset() override;
+    int getByteSize() const override;
 
 private:
     const I2cAddressParameter m_i2cAddressParam;
+    const int m_byteCapacity;
 };
 
 #endif // EEPROMI2C_24LCXXX_H
