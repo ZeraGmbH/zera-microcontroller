@@ -67,6 +67,24 @@ ZeraMControllerIo::atmelRM ZeraMControllerIo::bootloaderVerifyEEprom(cIntelHexFi
     return result;
 }
 
+ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenData(quint16 hwcmd, QByteArray &answer, quint8 *extraParam, quint16 extraParamLen)
+{
+    // Repsonse has variable length. So we need to get length first
+    // and call readOutput below
+    struct hw_cmd CMD(hwcmd, 0, extraParam, extraParamLen);
+    quint16 bytesToRead = writeCommand(&CMD);
+
+    if ( bytesToRead > 0 && m_nLastErrorFlags == 0 ) {
+        QByteArray localAnsw;
+        localAnsw.resize(bytesToRead);
+        quint16 bytesRead = readOutput(reinterpret_cast<quint8*>(localAnsw.data()), static_cast<quint16>(bytesToRead));
+        if (m_nLastErrorFlags == 0) {
+            answer = localAnsw;
+        }
+    }
+    return m_nLastErrorFlags == 0 ? cmddone : cmdexecfault;
+}
+
 ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenText(quint16 hwcmd, QString &answer, quint8 *extraParam, quint16 extraParamLen)
 {
     // Repsonse has variable length. So we need to get length first
