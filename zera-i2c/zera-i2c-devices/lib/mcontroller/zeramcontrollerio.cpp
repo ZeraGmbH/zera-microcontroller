@@ -76,7 +76,7 @@ ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenData(quint1
 
     if ( bytesToRead > 0 && m_nLastErrorFlags == 0 ) {
         QByteArray localAnsw;
-        localAnsw.resize(bytesToRead);
+        localAnsw.resize(bytesToRead-1);
         quint16 bytesRead = readOutput(reinterpret_cast<quint8*>(localAnsw.data()), static_cast<quint16>(bytesToRead));
         if (m_nLastErrorFlags == 0) {
             answer = localAnsw;
