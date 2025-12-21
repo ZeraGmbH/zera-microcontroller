@@ -77,7 +77,7 @@ ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenData(quint1
     if ( bytesToRead > 0 && m_nLastErrorFlags == 0 ) {
         QByteArray localAnsw;
         localAnsw.resize(bytesToRead-1);
-        quint16 bytesRead = readOutput(reinterpret_cast<quint8*>(localAnsw.data()), static_cast<quint16>(bytesToRead));
+        readOutput(reinterpret_cast<quint8*>(localAnsw.data()), static_cast<quint16>(bytesToRead));
         if (m_nLastErrorFlags == 0) {
             answer = localAnsw;
         }
@@ -94,7 +94,7 @@ ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenText(quint1
 
     if ( bytesToRead > 0 && m_nLastErrorFlags == 0 ) {
         char *localAnsw = new char[bytesToRead];
-        quint16 bytesRead = readOutput(reinterpret_cast<quint8*>(localAnsw), static_cast<quint16>(bytesToRead));
+        readOutput(reinterpret_cast<quint8*>(localAnsw), static_cast<quint16>(bytesToRead));
         if (m_nLastErrorFlags == 0) {
             localAnsw[bytesToRead-1] = 0;
             answer = localAnsw;
@@ -522,7 +522,7 @@ ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, c
                 writeBootloaderCommand(&blAdressCMD);
                 if ( m_nLastErrorFlags == 0 ) {
                     quint8* memdat = reinterpret_cast<quint8*>(memByteArray.data());
-                    quint16 memlen = static_cast<quint16>(memByteArray.count());
+                    quint16 memlen = static_cast<quint16>(memByteArray.size());
                     // write block
                     if(!verify) {
                         struct bl_cmd blWriteMemCMD(blCmd, memdat, memlen);
@@ -530,10 +530,10 @@ ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, c
                     }
                     // verify block
                     else {
-                        QByteArray memByteArrayRead(memByteArray.count() + 1/*crc*/, 0);
+                        QByteArray memByteArrayRead(memByteArray.size() + 1/*crc*/, 0);
                         quint8* memDatRead = reinterpret_cast<quint8*>(memByteArrayRead.data());
-                        quint16 memLenRead = static_cast<quint16>(memByteArrayRead.count());
-                        struct bl_cmd blReadMemCMD(blCmd, nullptr, memByteArray.count());
+                        quint16 memLenRead = static_cast<quint16>(memByteArrayRead.size());
+                        struct bl_cmd blReadMemCMD(blCmd, nullptr, memByteArray.size());
                         writeBootloaderCommand(&blReadMemCMD, memDatRead, memLenRead);
                         if ( m_nLastErrorFlags == 0 ) {
                             memByteArrayRead = memByteArrayRead.left(memlen); // remove crc
