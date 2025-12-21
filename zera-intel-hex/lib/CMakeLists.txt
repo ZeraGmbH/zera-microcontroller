@@ -13,7 +13,7 @@ add_library(zera-intel-hex SHARED
 
 target_link_libraries(zera-intel-hex
     PUBLIC
-    Qt5::Core
+    ${QTX}::Core
     # ask linker to help us finding unresolved symbols
     "-Wl,--no-undefined"
     )

@@ -13,7 +13,7 @@ add_library(zera-i2c SHARED
 
 target_link_libraries(zera-i2c
     PUBLIC
-    Qt5::Core
+    ${QTX}::Core
     # ask linker to help us finding unresolved symbols
     "-Wl,--no-undefined"
     )

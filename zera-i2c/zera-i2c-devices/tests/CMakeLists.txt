@@ -15,6 +15,6 @@ target_link_libraries(zera-i2c-devices-tests
     PUBLIC
     gtest
     gtest_main
-    Qt5::Core
+    ${QTX}::Core
     zera-i2c-devices
 )
