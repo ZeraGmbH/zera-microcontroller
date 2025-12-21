@@ -9,8 +9,10 @@ set(PROJECT_VERSION_MINOR "2")
 set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-find_package(Qt5 COMPONENTS Core CONFIG REQUIRED)
-find_package(Qt5Test REQUIRED)
+set(QT_MAJOR_VER "5" CACHE STRING "Qt major version")
+set(QTX "Qt${QT_MAJOR_VER}")
+
+find_package(${QTX} COMPONENTS Core Test CONFIG REQUIRED)
 find_package(ZenuxCore REQUIRED)
 find_package(GTest REQUIRED)
 
@@ -33,7 +35,7 @@ function(SETUP_QTESTS)
             )
         target_link_libraries(${_testname}
             PUBLIC
-            Qt5::Test
+            ${QTX}::Test
             Zera::tasks-base-testlib
             Zera::zera-timers-testlib
             )
