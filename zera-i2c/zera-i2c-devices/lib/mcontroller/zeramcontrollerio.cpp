@@ -1,10 +1,9 @@
-#include <crcutils.h>
-#include <QString>
-#include <QHash>
-
 #include "zeramcontrollerio.h"
 #include "zera_mcontroller_errorflags.h"
 #include "i2cutils.h"
+#include <crc8maxim.h>
+#include <QString>
+#include <QHash>
 
 // we have this at many many places -> TODO: rework and move to a common place
 #define DEBUG1 (m_nDebugLevel & 1) // log all error messages
@@ -145,7 +144,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
     int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
     if (!errVal) { // if no error
         // Checksum OK?
-        quint8 expectedCrc = cMaxim1WireCRC::CalcBlockCRC(inpBuf, 4);
+        quint8 expectedCrc = Crc8Maxim::calcBlockCrc(inpBuf, 4);
         quint8 receivedCrc = inpBuf[4];
         if (expectedCrc==receivedCrc) {
             m_nLastErrorFlags |= (static_cast<quint16>(inpBuf[0]) << 8) + inpBuf[1];
@@ -245,7 +244,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
     int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
     if (!errVal) { // no error?
         // Checksum OK?
-        quint8 expectedCrc = cMaxim1WireCRC::CalcBlockCRC(inpBuf, 4);
+        quint8 expectedCrc = Crc8Maxim::calcBlockCrc(inpBuf, 4);
         quint8 receivedCrc = inpBuf[4];
         if (expectedCrc==receivedCrc) {
             m_nLastErrorFlags |= (static_cast<quint16>(inpBuf[0]) << 8) + inpBuf[1];
@@ -357,7 +356,7 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
             }
         }
         // Checksum OK?
-        quint8 expectedCrc = cMaxim1WireCRC::CalcBlockCRC(data, dataAndCrcLen-1);
+        quint8 expectedCrc = Crc8Maxim::calcBlockCrc(data, dataAndCrcLen-1);
         quint8 receivedCrc = data[dataAndCrcLen-1];
         if (expectedCrc==receivedCrc) {
             dataReturnAndCrcLen = dataAndCrcLen;
@@ -410,7 +409,7 @@ void ZeraMControllerIo::GenCommand(hw_cmd* hc)
         }
     }
     // CRC
-    *p = cMaxim1WireCRC::CalcBlockCRC(hc->cmddata, static_cast<quint32>(len-1));
+    *p = Crc8Maxim::calcBlockCrc(hc->cmddata, static_cast<quint32>(len-1));
     // keep cmd total len
     hc->cmdlen = len;
 }
@@ -437,7 +436,7 @@ void ZeraMControllerIo::GenBootloaderCommand(bl_cmd* blc)
         }
     }
     // CRC
-    *p = cMaxim1WireCRC::CalcBlockCRC(blc->cmddata, len-1);
+    *p = Crc8Maxim::calcBlockCrc(blc->cmddata, len-1);
     // keep cmd total len
     blc->cmdlen = len;
 }

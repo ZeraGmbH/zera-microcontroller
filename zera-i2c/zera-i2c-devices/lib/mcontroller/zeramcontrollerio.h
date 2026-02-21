@@ -9,10 +9,8 @@
 #include "zeramcontrolleriotemplate.h"
 #include "protocol_zera_bootloader.h"
 #include "protocol_zera_hard.h"
-#include "zera_mcontroller_errorflags.h"
-#include <QString>
-#include <crcutils.h>
 #include <intelhexfileio.h>
+#include <QString>
 
 class ZERA_I2C_DEVICES_EXPORT ZeraMControllerIo : public ZeraMControllerIoTemplate
 {
