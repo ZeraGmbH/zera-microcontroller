@@ -15,7 +15,7 @@
 class ZERA_I2C_DEVICES_EXPORT ZeraMControllerIo : public ZeraMControllerIoTemplate
 {
 public:
-    ZeraMControllerIo(QString devnode, quint8 adr, quint8 debuglevel);
+    ZeraMControllerIo(const QString &devnode, quint8 adr, quint8 debuglevel);
     /**
      * @brief setMaxWriteMemRetry: Set maximum writes in case of auto-verify
      * @param _maxBlockWriteTries: Max block writes in case of auto-verify errors (FWIW: 0 will run 256 times!!)
@@ -67,9 +67,9 @@ public:
      */
     QString getErrorMaskText();
 private:
-    void GenCommand(hw_cmd* hc);
-    void GenBootloaderCommand(bl_cmd* blc);
-    quint8* GenAdressPointerParameter(quint8 adresspointerSize, quint32 adr);
+    static void GenCommand(hw_cmd* hc);
+    static void GenBootloaderCommand(bl_cmd* blc);
+    static quint8* GenAdressPointerParameter(quint8 adresspointerSize, quint32 adr);
     atmelRM loadOrVerifyMemory(quint8 blCmd, cIntelHexFileIO& ihxFIO, bool verify);
 
     quint32 m_nLastErrorFlags;

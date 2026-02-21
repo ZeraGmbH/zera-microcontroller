@@ -10,7 +10,7 @@
 #define DEBUG2 (m_nDebugLevel & 2) // log all i2c transfers
 //#define DEBUG3 (m_nDebugLevel & 4) // log all client connect/disconnects
 
-ZeraMControllerIo::ZeraMControllerIo(QString devnode, quint8 adr, quint8 debuglevel) :
+ZeraMControllerIo::ZeraMControllerIo(const QString &devnode, quint8 adr, quint8 debuglevel) :
     ZeraMControllerIoTemplate(devnode, adr, debuglevel),
     m_nLastErrorFlags(0),
     m_bBootCmd(false),
@@ -230,9 +230,8 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
     comData.nmsgs = 2;
     // Logging data
     QString i2cHexParam;
-    quint16 iByte;
     if (blc->par && (DEBUG1 || DEBUG2)) {
-        for(iByte=0; iByte<blc->paramOrRequestedLen; iByte++) {
+        for(quint16 iByte=0; iByte<blc->paramOrRequestedLen; iByte++) {
            i2cHexParam += QString("0x%1 ").arg(blc->par[iByte], 2, 16, QLatin1Char('0'));
         }
     }
@@ -349,9 +348,8 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
     int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
     if (!errVal) { // if no error
         QString i2cHexData;
-        quint16 iByte;
         if (DEBUG1 || DEBUG2) {
-            for(iByte=0; iByte<dataAndCrcLen; iByte++) {
+            for(quint16 iByte=0; iByte<dataAndCrcLen; iByte++) {
                i2cHexData += QString("0x%1 ").arg(data[iByte], 2, 16, QLatin1Char('0'));
             }
         }
@@ -429,7 +427,7 @@ void ZeraMControllerIo::GenBootloaderCommand(bl_cmd* blc)
     *p++ = blc->paramOrRequestedLen >> 8;
     *p++ = blc->paramOrRequestedLen & 0xFF;
     // parameter
-    quint8* ppar = blc->par;
+    const quint8* ppar = blc->par;
     if(ppar) {
         for (int i = 0; i < blc->paramOrRequestedLen; i++) {
             *p++ = *ppar++;
