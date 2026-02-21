@@ -28,7 +28,7 @@ QString ZeraMcontrollerErrorFlags::getErrorMaskText(quint32 errorFlags, bool boo
     }
     QString hostMask = QString("%1").arg(errMaskMaster, 4, 16, QLatin1Char('0')).toUpper();
     QString controllerMask = QString("%1").arg(errMaskMController, 4, 16, QLatin1Char('0')).toUpper();
-    strError = QString("host-mask 0x%1 / µC-mask 0x%2").arg(hostMask).arg(controllerMask);
+    strError = QString("host-mask 0x%1 / µC-mask 0x%2").arg(hostMask, controllerMask);
     if(errorFlags) {
         strError += QString(" / %1").arg(strFlags);
     }

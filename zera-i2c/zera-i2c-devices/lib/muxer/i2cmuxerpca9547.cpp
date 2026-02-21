@@ -1,7 +1,7 @@
 #include "i2cmuxerpca9547.h"
 #include <i2cutils.h>
 
-I2cMuxerPCA9547::I2cMuxerPCA9547(QString deviceNode, ushort i2cMuxAddr, int channel0to7) :
+I2cMuxerPCA9547::I2cMuxerPCA9547(const QString &deviceNode, ushort i2cMuxAddr, int channel0to7) :
     m_deviceNode(deviceNode),
     m_i2cMuxAdress(i2cMuxAddr),
     m_channel0to7(channel0to7)

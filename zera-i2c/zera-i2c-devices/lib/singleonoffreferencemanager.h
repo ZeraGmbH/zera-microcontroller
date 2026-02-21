@@ -2,6 +2,7 @@
 #define SINGLEONOFFREFERENCEMANAGER_H
 
 #include <QMap>
+
 template <class T>
 class SingleOnOffReferenceManager
 {

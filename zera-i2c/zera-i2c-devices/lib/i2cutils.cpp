@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <linux/i2c.h>
 
-int I2CTransfer(QString deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata, bool doNotLogTransferNack)
+int I2CTransfer(const QString &deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata, bool doNotLogTransferNack)
 {
     int fd = open(deviceNode.toLatin1().constData(), O_RDWR);
     if (fd < 0) {
@@ -42,14 +42,13 @@ __s32 i2c_smbus_access(int file, char read_write, __u8 command,
                        int size, union i2c_smbus_data *data)
 {
     struct i2c_smbus_ioctl_data args;
-    __s32 err;
 
     args.read_write = read_write;
     args.command = command;
     args.size = size;
     args.data = data;
 
-    err = ioctl(file, I2C_SMBUS, &args);
+    __s32 err = ioctl(file, I2C_SMBUS, &args);
     if (err == -1)
         err = -errno;
     return err;
@@ -58,16 +57,14 @@ __s32 i2c_smbus_access(int file, char read_write, __u8 command,
 __s32 i2c_smbus_read_byte(int file)
 {
     union i2c_smbus_data data;
-    int err;
-
-    err = i2c_smbus_access(file, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data);
+    int err = i2c_smbus_access(file, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data);
     if (err < 0)
         return err;
 
     return 0x0FF & data.byte;
 }
 
-bool I2cPing(QString deviceNode, int i2cadr)
+bool I2cPing(const QString &deviceNode, int i2cadr)
 {
     bool bDevConnected = false;
     int file = open(deviceNode.toLatin1().data(), O_RDWR);
