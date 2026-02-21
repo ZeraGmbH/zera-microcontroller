@@ -3,7 +3,7 @@ add_executable(zera-i2c-ping
 )
 
 target_link_libraries(zera-i2c-ping
-    zera-i2c
+    zera-i2c-devices
     # ask linker to help us finding unresolved symbols
     "-Wl,--no-undefined"
     )
