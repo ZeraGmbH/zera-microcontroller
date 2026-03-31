@@ -75,11 +75,10 @@ ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenData(quint1
 
     if ( bytesToRead > 0 && m_nLastErrorFlags == 0 ) {
         QByteArray localAnsw;
-        localAnsw.resize(bytesToRead-1);
-        readOutput(reinterpret_cast<quint8*>(localAnsw.data()), static_cast<quint16>(bytesToRead));
-        if (m_nLastErrorFlags == 0) {
-            answer = localAnsw;
-        }
+        localAnsw.resize(bytesToRead);
+        readOutput(reinterpret_cast<quint8*>(localAnsw.data()), bytesToRead);
+        if (m_nLastErrorFlags == 0)
+            answer = localAnsw.left(bytesToRead-1); // no CRC
     }
     return m_nLastErrorFlags == 0 ? cmddone : cmdexecfault;
 }
