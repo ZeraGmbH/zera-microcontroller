@@ -31,8 +31,8 @@ public:
     atmelRM bootloaderVerifyFlash(cIntelHexFileIO& ihxFIO);
     atmelRM bootloaderVerifyEEprom(cIntelHexFileIO& ihxFIO);
 
-    atmelRM readVariableLenData(quint16 hwcmd, quint8 deviceNo, QByteArray& answer, quint8* extraParam=nullptr, quint16 extraParamLen=0);
-    atmelRM readVariableLenText(quint16 hwcmd, QString& answer, quint8* extraParam=nullptr, quint16 extraParamLen=0) override;
+    atmelRM readVariableLenData(quint16 hwcmd, quint8 deviceNo, QByteArray& answer, const quint8* extraParam=nullptr, quint16 extraParamLen=0);
+    atmelRM readVariableLenText(quint16 hwcmd, QString& answer, const quint8* extraParam=nullptr, quint16 extraParamLen=0) override;
     /**
      * @brief writeCommand: Write command and receive command response
      * @param hc: pointer to command struct

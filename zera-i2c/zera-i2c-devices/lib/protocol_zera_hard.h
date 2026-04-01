@@ -24,7 +24,7 @@ constexpr quint16 HW_ERR_ASCII_HEX = 1<<6;
  * @brief ZERA µC command structure
  */
 struct hw_cmd {
-    hw_cmd(quint16 _cmdcode, quint8 _device, quint8* _par, quint16 _plen)
+    hw_cmd(quint16 _cmdcode, quint8 _device, const quint8* _par, quint16 _plen)
         : cmdlen(0), cmddata(nullptr) {
         cmdcode = _cmdcode;
         device = _device;
@@ -42,7 +42,7 @@ struct hw_cmd {
     /**
      * @brief par: paramter data
      */
-    quint8* par;
+    const quint8* par;
     /**
      * @brief plen: parameter length
      */
