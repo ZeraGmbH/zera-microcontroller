@@ -6,36 +6,63 @@
 #include <errno.h>
 #include <linux/i2c.h>
 
-int I2CTransfer(const QString &deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata, bool doNotLogTransferNack)
+static int I2cTransferErrNo = 0;
+
+I2cUtilsErrorReturns I2CTransfer(const QString &deviceNode, int i2cadr, i2c_rdwr_ioctl_data* iodata, bool doNotLogTransferErrors)
 {
+    I2cTransferErrNo = 0;
     int fd = open(deviceNode.toLatin1().constData(), O_RDWR);
     if (fd < 0) {
+        I2cTransferErrNo = errno;
         qWarning("Error opening i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(errno));
+                 qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
         return I2C_IO_ERR_SETUP;
     }
     if (ioctl(fd, I2C_RETRIES, 0) < 0) {
+        I2cTransferErrNo = errno;
         close(fd);
         qWarning("Error setting retries of i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(errno));
+                 qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
         return I2C_IO_ERR_SETUP;
     }
     if (ioctl(fd, I2C_TIMEOUT, 500) < 0) {
+        I2cTransferErrNo = errno;
         close(fd);
         qWarning("Error setting timeout of i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(errno));
+                 qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
         return I2C_IO_ERR_SETUP;
     }
     if (ioctl(fd, I2C_RDWR, iodata) < 0) {
+        I2cTransferErrNo = errno;
         close(fd);
-        if(!doNotLogTransferNack)
+        if(!doNotLogTransferErrors)
             qWarning("Error read/write of i2c device %s / 0x%02X Error message: %s",
-                     qPrintable(deviceNode), i2cadr, strerror(errno));
+                     qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
         return I2C_IO_ERR_TRANSACTION;
     }
     close(fd);
     return I2C_IO_OK;
 }
+
+int getLastI2cTransferErrorNo()
+{
+    return I2cTransferErrNo;
+}
+
+QString getLastI2cTransferErrorStr()
+{
+    return strerror(I2cTransferErrNo);
+}
+
+QString getLastI2cTransferErrorStep(I2cUtilsErrorReturns step)
+{
+    if (step == I2C_IO_ERR_SETUP)
+        return "Setup step";
+    if (step == I2C_IO_ERR_TRANSACTION)
+        return "Transaction step";
+    return "";
+}
+
 
 // stolen from https://github.com/mozilla-b2g/i2c-tools
 __s32 i2c_smbus_access(int file, char read_write, __u8 command,
