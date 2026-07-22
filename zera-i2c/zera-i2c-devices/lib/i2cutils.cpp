@@ -65,8 +65,8 @@ QString getLastI2cTransferErrorStep(I2cUtilsErrorReturns step)
 
 
 // stolen from https://github.com/mozilla-b2g/i2c-tools
-__s32 i2c_smbus_access(int file, char read_write, __u8 command,
-                       int size, union i2c_smbus_data *data)
+static __s32 i2c_smbus_access(int file, char read_write, __u8 command,
+                              int size, union i2c_smbus_data *data)
 {
     struct i2c_smbus_ioctl_data args;
 
@@ -81,7 +81,7 @@ __s32 i2c_smbus_access(int file, char read_write, __u8 command,
     return err;
 }
 
-__s32 i2c_smbus_read_byte(int file)
+static __s32 i2c_smbus_read_byte(int file)
 {
     union i2c_smbus_data data;
     int err = i2c_smbus_access(file, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data);
