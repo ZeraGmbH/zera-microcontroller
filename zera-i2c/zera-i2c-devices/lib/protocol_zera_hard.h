@@ -31,29 +31,11 @@ struct hw_cmd {
         par = _par;
         plen = _plen;
     }
-    /**
-     * @brief cmdcode: Command identifying number
-     */
     quint16 cmdcode;
-    /**
-     * @brief device: subdevice number
-     */
     quint8 device;
-    /**
-     * @brief par: paramter data
-     */
     const quint8* par;
-    /**
-     * @brief plen: parameter length
-     */
     quint16 plen;
-    /**
-     * @brief cmdlen: total length of command
-     */
     quint16 cmdlen;
-    /**
-     * @brief cmddata: raw data send
-     */
     quint8* cmddata;
 };
 
