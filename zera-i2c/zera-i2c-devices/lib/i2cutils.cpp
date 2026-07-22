@@ -14,30 +14,42 @@ I2cUtilsErrorReturns I2CTransfer(const QString &deviceNode, int i2cadr, i2c_rdwr
     int fd = open(deviceNode.toLatin1().constData(), O_RDWR);
     if (fd < 0) {
         I2cTransferErrNo = errno;
-        qWarning("Error opening i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
+        qWarning("Error opening i2c device %s/0x%02X Error message: %s (%i)",
+                 qPrintable(deviceNode),
+                 i2cadr,
+                 strerror(I2cTransferErrNo),
+                 I2cTransferErrNo);
         return I2C_IO_ERR_SETUP;
     }
     if (ioctl(fd, I2C_RETRIES, 0) < 0) {
         I2cTransferErrNo = errno;
         close(fd);
-        qWarning("Error setting retries of i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
+        qWarning("Error setting retries of i2c device %s/0x%02X Error message: %s (%i)",
+                 qPrintable(deviceNode),
+                 i2cadr,
+                 strerror(I2cTransferErrNo),
+                 I2cTransferErrNo);
         return I2C_IO_ERR_SETUP;
     }
     if (ioctl(fd, I2C_TIMEOUT, 500) < 0) {
         I2cTransferErrNo = errno;
         close(fd);
-        qWarning("Error setting timeout of i2c device %s / 0x%02X Error message: %s",
-                 qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
+        qWarning("Error setting timeout of i2c device %s / 0x%02X Error message: %s (%i)",
+                 qPrintable(deviceNode),
+                 i2cadr,
+                 strerror(I2cTransferErrNo),
+                 I2cTransferErrNo);
         return I2C_IO_ERR_SETUP;
     }
     if (ioctl(fd, I2C_RDWR, iodata) < 0) {
         I2cTransferErrNo = errno;
         close(fd);
         if(!doNotLogTransferErrors)
-            qWarning("Error read/write of i2c device %s / 0x%02X Error message: %s",
-                     qPrintable(deviceNode), i2cadr, strerror(I2cTransferErrNo));
+            qWarning("Error read/write of i2c device %s / 0x%02X Error message: %s (%i)",
+                     qPrintable(deviceNode),
+                     i2cadr,
+                     strerror(I2cTransferErrNo),
+                     I2cTransferErrNo);
         return I2C_IO_ERR_TRANSACTION;
     }
     close(fd);
