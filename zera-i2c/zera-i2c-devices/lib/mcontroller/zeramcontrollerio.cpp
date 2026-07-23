@@ -555,6 +555,6 @@ quint32 ZeraMControllerIo::getLastErrorMask()
 
 QString ZeraMControllerIo::getErrorMaskText()
 {
-    return ZeraMcontrollerErrorFlags::getErrorMaskText(m_nLastErrorFlags, m_bBootCmd);
+    return ZeraMControllerLogStrings::getErrorMaskText(m_nLastErrorFlags, m_bBootCmd);
 }
 
