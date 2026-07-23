@@ -72,9 +72,6 @@ private:
     static quint8* GenAdressPointerParameter(quint8 adresspointerSize, quint32 adr);
     atmelRM loadOrVerifyMemory(quint8 blCmd, cIntelHexFileIO& ihxFIO, bool verify);
     void resetErrors();
-    static QString getHexParam(hw_cmd *hc);
-    static QString getHexParam(bl_cmd *blc);
-    static QString getHexData(quint8 *data, quint16 dataAndCrcLen);
 
     quint32 m_nLastErrorFlags;
     bool m_bBootCmd;
