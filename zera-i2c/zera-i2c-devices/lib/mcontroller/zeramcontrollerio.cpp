@@ -113,7 +113,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
 
     GenCommand(hc);
     m_bBootCmd = false;
-    m_nLastErrorFlags = 0;
+    resetErrors();
 
     // Send command and receive response (= error + length of data available for further read)
     struct i2c_msg Msgs[2];
@@ -214,7 +214,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
 
     GenBootloaderCommand(blc);
     m_bBootCmd = true;
-    m_nLastErrorFlags = 0;
+    resetErrors();
 
     i2c_msg Msgs[2];
     // send cmd
@@ -319,7 +319,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
 quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
 {
     quint16 dataReturnAndCrcLen = 0;
-    m_nLastErrorFlags = 0;
+    resetErrors();
     // Parameter check: If something is wrong error is caused by a poor
     // implementor -> generate warning always
     if(!data) {
@@ -453,6 +453,11 @@ quint8* ZeraMControllerIo::GenAdressPointerParameter(quint8 adresspointerSize, q
     return par;
 }
 
+void ZeraMControllerIo::resetErrors()
+{
+    m_nLastErrorFlags = 0;
+}
+
 
 ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, cIntelHexFileIO& ihxFIO, bool verify)
 {
@@ -513,7 +518,7 @@ ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, c
                 // * we need reset in case of repetitions
                 // * on first block and subsequent blocks without m_nLastErrorFlags is 0 anyway because
                 //   loop stops on other errors than write + BL_ERR_FLAG_EXECUTE
-                m_nLastErrorFlags = 0;
+                resetErrors();
                 // Set address pointer
                 quint8* adrParameter;
                 quint8 adrParLen = BootloaderInfo.AdressPointerSize;

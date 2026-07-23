@@ -71,6 +71,7 @@ private:
     static void GenBootloaderCommand(bl_cmd* blc);
     static quint8* GenAdressPointerParameter(quint8 adresspointerSize, quint32 adr);
     atmelRM loadOrVerifyMemory(quint8 blCmd, cIntelHexFileIO& ihxFIO, bool verify);
+    void resetErrors();
 
     quint32 m_nLastErrorFlags;
     bool m_bBootCmd;
