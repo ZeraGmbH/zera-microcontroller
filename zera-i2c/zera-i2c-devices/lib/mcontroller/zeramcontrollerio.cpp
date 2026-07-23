@@ -106,14 +106,15 @@ ZeraMControllerIoTemplate::atmelRM ZeraMControllerIo::readVariableLenText(quint1
     return m_nLastErrorFlags == 0 ? cmddone : cmdexecfault;
 }
 
-quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint16 dataAndCrcLen)
+quint16 ZeraMControllerIo::writeCommand(hw_cmd *hc, quint8 *dataReceive, quint16 dataAndCrcLen)
 {
+    resetErrors();
+
     quint16 dataReturnAndCrcLen = 0;
     quint8 inpBuf[5]; // the answer always has 5 bytes
 
     GenCommand(hc);
     m_bBootCmd = false;
-    resetErrors();
 
     // Send command and receive response (= error + length of data available for further read)
     struct i2c_msg Msgs[2];
@@ -131,21 +132,13 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
     struct i2c_rdwr_ioctl_data comData;
     comData.msgs = Msgs;
     comData.nmsgs = 2;
-    // Logging data
-    QString i2cHexParam;
-    if (DEBUG1 || DEBUG2) {
-        quint16 iByte;
-        for(iByte=0; iByte<hc->plen; iByte++) {
-           i2cHexParam += QString("0x%1 ").arg(hc->par[iByte], 2, 16, QLatin1Char('0'));
-        }
-    }
     if (DEBUG2) {
         qInfo("i2c cmd start: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s / len %u",
-               m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam), dataAndCrcLen);
+              m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(getHexParam(hc)), dataAndCrcLen);
     }
 
-    int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
-    if (!errVal) { // if no error
+    I2cUtilsErrorReturns errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
+    if (errVal == I2C_IO_OK) {
         // Checksum OK?
         quint8 expectedCrc = Crc8Maxim::calcBlockCrc(inpBuf, 4);
         quint8 receivedCrc = inpBuf[4];
@@ -167,7 +160,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
                     else {
                         if(DEBUG1) {
                             qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s / len %u",
-                                   m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam), dataAndCrcLen);
+                                      m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(getHexParam(hc)), dataAndCrcLen);
                             qCritical("i2c cmd returned wrong length: adr 0x%02X / expected len %u / received len %u",
                                    m_nI2CAdr, dataAndCrcLen, dataReturnAndCrcLen);
                         }
@@ -177,7 +170,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
             }
             else if(DEBUG1) {
                 qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
-                       m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam));
+                          m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(getHexParam(hc)));
                 qCritical("i2c cmd error: adr 0x%02X / %s",
                        m_nI2CAdr, qPrintable(getErrorMaskText()));
             }
@@ -186,7 +179,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
             m_nLastErrorFlags |= MASTER_ERR_FLAG_CRC;
             if (DEBUG1) {
                 qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
-                       m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam));
+                       m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(getHexParam(hc)));
                 qCritical("i2c cmd checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X",
                        m_nI2CAdr, expectedCrc, receivedCrc);
             }
@@ -196,7 +189,7 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
         m_nLastErrorFlags |= MASTER_ERR_FLAG_I2C_TRANSFER;
         if (DEBUG1) {
             qCritical("i2c cmd was: adr 0x%02X / cmd 0x%04X / dev 0x%02X / par %s",
-                   m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(i2cHexParam));
+                   m_nI2CAdr, hc->cmdcode, hc->device, qPrintable(getHexParam(hc)));
             qCritical("i2c cmd failed: adr 0x%02X / error returned %i",
                    m_nI2CAdr, errVal);
         }
@@ -209,12 +202,13 @@ quint16 ZeraMControllerIo::writeCommand(hw_cmd * hc, quint8 *dataReceive, quint1
 
 quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataReceive, quint16 dataAndCrcLen)
 {
+    resetErrors();
+
     quint16 dataReturnAndCrcLen = 0;
     quint8 inpBuf[5]; // command response's length is always 5
 
     GenBootloaderCommand(blc);
     m_bBootCmd = true;
-    resetErrors();
 
     i2c_msg Msgs[2];
     // send cmd
@@ -231,20 +225,14 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
     struct i2c_rdwr_ioctl_data comData;
     comData.msgs = Msgs;
     comData.nmsgs = 2;
-    // Logging data
-    QString i2cHexParam;
-    if (blc->par && (DEBUG1 || DEBUG2)) {
-        for(quint16 iByte=0; iByte<blc->paramOrRequestedLen; iByte++) {
-           i2cHexParam += QString("0x%1 ").arg(blc->par[iByte], 2, 16, QLatin1Char('0'));
-        }
-    }
+
     if (DEBUG2) {
         qInfo("i2c bootcmd start: addr 0x%02X / cmd 0x%02X / par %s / len %u",
-               m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam), dataAndCrcLen);
+              m_nI2CAdr, blc->cmdcode, qPrintable(getHexParam(blc)), dataAndCrcLen);
     }
 
-    int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
-    if (!errVal) { // no error?
+    I2cUtilsErrorReturns errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
+    if (errVal == I2C_IO_OK) {
         // Checksum OK?
         quint8 expectedCrc = Crc8Maxim::calcBlockCrc(inpBuf, 4);
         quint8 receivedCrc = inpBuf[4];
@@ -275,7 +263,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
                     else {
                         if(DEBUG1) {
                             qCritical("i2c bootcmd was: adr 0x%02X / cmd 0x%02X / par %s / len %u",
-                                   m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam), dataAndCrcLen);
+                                   m_nI2CAdr, blc->cmdcode, qPrintable(getHexParam(blc)), dataAndCrcLen);
                             qCritical("i2c bootcmd returned wrong length: adr 0x%02X / expected len %u / received len %u",
                                    m_nI2CAdr, dataAndCrcLen, dataReturnAndCrcLen);
                         }
@@ -285,7 +273,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
             }
             else if(DEBUG1) {
                 qCritical("i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
-                       m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam));
+                       m_nI2CAdr, blc->cmdcode, qPrintable(getHexParam(blc)));
                 qCritical("i2c bootcmd error: adr 0x%02X / %s",
                        m_nI2CAdr, qPrintable(getErrorMaskText()));
             }
@@ -294,7 +282,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
             m_nLastErrorFlags |= MASTER_ERR_FLAG_CRC;
             if (DEBUG1) {
                 qCritical("i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
-                       m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam));
+                       m_nI2CAdr, blc->cmdcode, qPrintable(getHexParam(blc)));
                 qCritical("i2c bootcmd checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X",
                        m_nI2CAdr, expectedCrc, receivedCrc);
             }
@@ -304,7 +292,7 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
         m_nLastErrorFlags |= MASTER_ERR_FLAG_I2C_TRANSFER;
         if (DEBUG1) {
             qCritical("i2c bootcmd was: addr 0x%02X / cmd 0x%02X / par %s",
-                   m_nI2CAdr, blc->cmdcode, qPrintable(i2cHexParam));
+                   m_nI2CAdr, blc->cmdcode, qPrintable(getHexParam(blc)));
             qCritical("i2c bootcmd failed: adr 0x%02X / error returned %i",
                    m_nI2CAdr, errVal);
         }
@@ -318,8 +306,9 @@ quint16 ZeraMControllerIo::writeBootloaderCommand(bl_cmd* blc, quint8 *dataRecei
 
 quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
 {
-    quint16 dataReturnAndCrcLen = 0;
     resetErrors();
+
+    quint16 dataReturnAndCrcLen = 0;
     // Parameter check: If something is wrong error is caused by a poor
     // implementor -> generate warning always
     if(!data) {
@@ -348,14 +337,8 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
         qInfo("i2c read start: adr 0x%02X / len %u",
                 m_nI2CAdr, dataAndCrcLen);
     }
-    int errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
-    if (!errVal) { // if no error
-        QString i2cHexData;
-        if (DEBUG1 || DEBUG2) {
-            for(quint16 iByte=0; iByte<dataAndCrcLen; iByte++) {
-               i2cHexData += QString("0x%1 ").arg(data[iByte], 2, 16, QLatin1Char('0'));
-            }
-        }
+    I2cUtilsErrorReturns errVal = I2CTransfer(m_sI2CDevNode, m_nI2CAdr, &comData);
+    if (errVal == I2C_IO_OK) {
         // Checksum OK?
         quint8 expectedCrc = Crc8Maxim::calcBlockCrc(data, dataAndCrcLen-1);
         quint8 receivedCrc = data[dataAndCrcLen-1];
@@ -363,13 +346,13 @@ quint16 ZeraMControllerIo::readOutput(quint8 *data, quint16 dataAndCrcLen)
             dataReturnAndCrcLen = dataAndCrcLen;
             if(DEBUG2) {
                 qInfo("i2c read ok: adr 0x%02X / len %u / data %s",
-                       m_nI2CAdr, dataReturnAndCrcLen, qPrintable(i2cHexData));
+                       m_nI2CAdr, dataReturnAndCrcLen, qPrintable(getHexData(data, dataAndCrcLen)));
             }
         }
         else {
             if (DEBUG1) {
                 qCritical("i2c read checksum error: adr 0x%02X / expected 0x%02X / received: 0x%02X / data %s",
-                       m_nI2CAdr, expectedCrc, receivedCrc, qPrintable(i2cHexData));
+                       m_nI2CAdr, expectedCrc, receivedCrc, qPrintable(getHexData(data, dataAndCrcLen)));
             }
             m_nLastErrorFlags |= MASTER_ERR_FLAG_CRC;
         }
@@ -458,6 +441,32 @@ void ZeraMControllerIo::resetErrors()
     m_nLastErrorFlags = 0;
 }
 
+QString ZeraMControllerIo::getHexParam(hw_cmd *hc)
+{
+    QString i2cHexParam;
+    if (hc->par)
+        for(int iByte=0; iByte<hc->plen; iByte++)
+            i2cHexParam += QString("0x%1 ").arg(hc->par[iByte], 2, 16, QLatin1Char('0'));
+    return i2cHexParam;
+}
+
+QString ZeraMControllerIo::getHexParam(bl_cmd *blc)
+{
+    QString i2cHexParam;
+    if (blc->par)
+        for(int iByte=0; iByte<blc->paramOrRequestedLen; iByte++)
+            i2cHexParam += QString("0x%1 ").arg(blc->par[iByte], 2, 16, QLatin1Char('0'));
+    return i2cHexParam;
+}
+
+QString ZeraMControllerIo::getHexData(quint8 *data, quint16 dataAndCrcLen)
+{
+    QString i2cHexData;
+    for(quint16 iByte=0; iByte<dataAndCrcLen; iByte++) {
+        i2cHexData += QString("0x%1 ").arg(data[iByte], 2, 16, QLatin1Char('0'));
+    }
+    return i2cHexData;
+}
 
 ZeraMControllerIo::atmelRM ZeraMControllerIo::loadOrVerifyMemory(quint8 blCmd, cIntelHexFileIO& ihxFIO, bool verify)
 {
